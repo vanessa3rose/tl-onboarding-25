@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+
+  /* colors */
+  --theme-orange1: #A45B45;
+  --theme-orange2: #7A311B;
+  --theme-mint: #12B982;
+  --theme-pine: #0C5F50;
+  --theme-navy1: #1F2937;
+  --theme-navy2: #1A2431;
+  --theme-gray1: #E4E4E7;
+  --theme-gray2: #D4D4D8;
+  --theme-gray3: #A1A1AA;
+  --theme-charcoal: #363F4C;
+}
+
+body {
+  color: var(--text-color);
+  background: var(--background);
+}
