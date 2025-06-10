@@ -11,7 +11,7 @@ import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 export default function Homepage() {
 
 
-  /////////////////////////////// CLERK ///////////////////////////////
+  /////////////////////////////// VARIABLES ///////////////////////////////
 
   const { user } = useUser();
   

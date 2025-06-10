@@ -20,4 +20,5 @@
 body {
   color: var(--text-color);
   background: var(--background);
+  fill: var(--fill);
 }

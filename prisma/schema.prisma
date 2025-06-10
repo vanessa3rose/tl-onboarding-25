@@ -6,10 +6,21 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  
+  userId      String
+
+  movieId     Int
+  movieData   Json  // title (String), description (String), year (Int), poster (string)
+
+  metadata    Json  // toWatch (boolean), watched (boolean), liked (boolean), rating (Int), notes (String), collections (String[])     
 }

@@ -6,6 +6,7 @@ import Homepage from "./components/Homepage";
 import ListPage from "./components/ListPage";
 import MoviePage from "./components/MoviePage";
 import SignInPage from "./components/SignInPage";
+import ReviewsPage from "./components/ReviewsPage";
 
 
 /////////////////////////////// FUNCTION ///////////////////////////////
@@ -16,7 +17,8 @@ const App = () => {
       <Switch>
         <Route path="/" component={Homepage} />
         <Route path="/lists/:page" component={ListPage} />
-        <Route path="/movies/:id" component={MoviePage} />
+        <Route path="/movies/:id/:prev" component={MoviePage} />
+        <Route path="/reviews/" component={ReviewsPage} />
         <Route path="/sign-in/:step?" component={SignInPage} />
 
         {/* Shows a 404 error if the path doesn't match anything */}

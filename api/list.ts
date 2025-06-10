@@ -1,3 +1,5 @@
+/////////////////////////////// GET ///////////////////////////////
+
 export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams;
   const page = searchParams.get("page");

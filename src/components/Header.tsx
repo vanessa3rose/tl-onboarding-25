@@ -2,7 +2,7 @@
 /////////////////////////////// IMPORTS ///////////////////////////////
 
 import { Link } from "wouter";
-import { UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import './../index.css'
 
 
@@ -13,8 +13,10 @@ export default function Header ({ params }: { params: { selected: number } }) {
 
   /////////////////////////////// VARIABLES ///////////////////////////////
 
-  const TABS = ["LISTS", "REVIEWED", "COLLECTIONS"];
-  const REF = ["/lists/1", "/", "/"];
+  const { isSignedIn } = useUser();
+
+  const TABS = isSignedIn ? ["LISTS", "REVIEWS", "COLLECTIONS"] : ["LISTS"];
+  const REF = isSignedIn ? ["/lists/1", "/reviews", "/"] : ["/lists/1"];
 
 
   /////////////////////////////// HTML ///////////////////////////////
@@ -32,7 +34,7 @@ export default function Header ({ params }: { params: { selected: number } }) {
       {/* Middle (Tabs) */}
       <div className="flex flex-row w-3/5 justify-center space-x-20">
         {TABS.map((tab, index) => (
-          <Link href={REF[index]} className={`font-medium text-[14px] text-theme-gray2 ${params.selected === index && "bg-theme-charcoal rounded-xl px-3"}`}>
+          <Link href={REF[index]} key={index} className={`font-medium text-[14px] text-theme-gray2 ${params.selected === index && "bg-theme-charcoal rounded-xl px-3"}`}>
             {tab}
           </Link>
         ))}
@@ -40,16 +42,29 @@ export default function Header ({ params }: { params: { selected: number } }) {
       
       {/* Right Side (Profile Button) */}
       <div className="flex w-1/5 items-center justify-end">
-        <UserButton
-          afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              userButtonAvatarBox: "ring-2 ring-theme-mint",
-              userButtonPopoverCard: "text-theme-mint",
-              userButtonPopoverActionButton: "hover:bg-theme-gray1",
-            },
-          }}
-        />
+
+        {/* Signed In: User */}
+        <SignedIn>
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                userButtonAvatarBox: "ring-2 ring-theme-mint",
+                userButtonPopoverCard: "text-theme-mint",
+                userButtonPopoverActionButton: "hover:bg-theme-gray1",
+              },
+            }}
+          />
+        </SignedIn>
+
+        {/* Signed Out: Sign In */}
+        <SignedOut>
+          <div className="flex justify-center items-center bg-theme-orange1 rounded-3xl px-3">
+            <Link href="/sign-in" className="text-center text-[16px] text-white font-medium">
+              Sign In
+            </Link>
+          </div>
+        </SignedOut>
       </div>
     </div>
   );
