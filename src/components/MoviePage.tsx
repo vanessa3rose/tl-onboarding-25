@@ -102,7 +102,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
   }, [currMovie])
 
 
-  /////////////////////////////// MOVIE BUTTONS ///////////////////////////////
+  /////////////////////////////// METADATA BUTTONS ///////////////////////////////
 
   // to toggle one of the first 3 buttons on the movie card
   const toggleMetadataButton = async (key: "toWatch" | "watched" | "liked") => {
@@ -175,7 +175,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
   // star hovering
   const [hoveredRating, setHoveredRating] = useState(0);
 
-  // to toggle one of the first 3 buttons on a movie card
+  // to toggle the rating on a movie card
   const toggleMetadataRating = async (starIndex: number) => {
     
     // updates the button in the frontend
@@ -243,6 +243,96 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
   };
 
 
+  /////////////////////////////// NOTES ///////////////////////////////
+
+  const [notesVisible, setNotesVisible] = useState(false);
+  const [currNotes, setCurrNotes] = useState("");
+
+  // when the check button is clicked
+  const submitNotes = () => {
+    updateMetadataNotes(currNotes);   // api call
+    setNotesVisible(false);           // closes section
+  }
+
+  // when the x button is clicked
+  const clearNotes = () => {
+    setCurrNotes("");           // updates the state
+    updateMetadataNotes("");    // api call
+  }
+
+  // to update the notes on a movie card
+  const updateMetadataNotes = async (notes: string) => {
+    
+    // updates the button in the frontend
+    setReviewData((prev) => {
+      const updated = {...prev};
+      updated["notes"] = notes;
+      return updated;
+    })
+  
+    // get user reviews
+    const foundReview = userReviews.find((review: any) => review.movieId === currId);
+  
+    // if the movie has already been reviewed by the user
+    if (foundReview) {
+
+      // toggle the given metadata key
+      const updatedMetadata = {
+        ...foundReview.metadata,
+        ["notes"]: notes,
+      };
+  
+      // updates it in the backend
+      await fetch(`/api/review?id=${foundReview.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedMetadata),
+      })
+      .then(res => res.json())
+      .then(data => console.log('Updated movie:', data))
+      .catch(err => console.error(err));
+  
+
+    // if it has not
+    } else {
+
+      // fetch movie data (excluding id)
+      let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
+  
+      // adds it to the backend
+      await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id,
+          movieId: currId,
+          movieData: movie,
+          metadata: {
+            toWatch: false,
+            watched: false,
+            liked: false,
+            rating: 0,
+            notes: notes,
+            collections: [],
+          },
+        }),
+      })
+      .then(res => res.json())
+      .then(data => console.log('Added review:', data))
+      .catch(err => console.error(err));
+    }
+  
+    // reload reviews after the update
+    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    setUserReviews(reviews);
+  };
+
+
+  /////////////////////////////// COLLECTIONS ///////////////////////////////
+
+  const [collectionsVisible, setCollectionsVisible] = useState(false);
+
+
   /////////////////////////////// HTML ///////////////////////////////
 
   return (
@@ -296,89 +386,131 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
             {/* Buttons */}
             <SignedIn>
-              <div className="flex w-full h-[50px] flex-row justify-center items-center px-5 bg-theme-gray3 border-4 border-theme-navy2">
+              <div className="flex flex-col w-full bg-theme-gray3 border-4 border-theme-navy2">
 
-                {/* LEFT */}
-                <div className="flex flex-row w-1/3 justify-start items-center space-x-1">
-                  {/* watch list */}
-                  <button className="group" onClick={() => toggleMetadataButton("toWatch")}>
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                      fill={reviewData?.toWatch ? "var(--theme-gray1)" : "none"} 
-                      className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                  </button>
-
-                  {/* watched */}
-                  <button className="group" onClick={() => toggleMetadataButton("watched")}>
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                      fill={reviewData?.watched ? "var(--theme-gray1)" : "none"} 
-                      className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                  </button>
-
-                  {/* liked */}
-                  <button className="group" onClick={() => toggleMetadataButton("liked")}>
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                      fill={reviewData?.liked ? "var(--theme-gray1)" : "none"} 
-                      className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* MIDDLE */}
-                <div className="group flex flex-row w-1/3 justify-center items-center">
-                  {/* rating */}
-                  {Array(5).fill("").map((_, index) => (
-                    <button 
-                      key={index} className="group" onClick={() => toggleMetadataRating(index + 1)} 
-                      onMouseEnter={() => setHoveredRating(index + 1)} onMouseLeave={() => setHoveredRating(0)}
-                    >
+                <div className="flex w-full h-[50px] flex-row justify-center items-center px-5">
+                  {/* LEFT */}
+                  <div className="flex flex-row w-1/3 justify-start items-center space-x-1">
+                    {/* watch list */}
+                    <button className="group" onClick={() => toggleMetadataButton("toWatch")}>
                       <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
-                        strokeWidth={index < hoveredRating ? 2 : 1.5} stroke="currentColor" 
-                        fill={index < (hoveredRating !== 0 ? hoveredRating : (reviewData?.rating || 0)) ? "var(--theme-gray1)" : "none"} 
-                        className={`size-6 ${index < hoveredRating && "drop-shadow-md stroke-theme-pine"}`}
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                        fill={reviewData?.toWatch ? "var(--theme-gray1)" : "none"} 
+                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                     </button>
-                  ))}
+
+                    {/* watched */}
+                    <button className="group" onClick={() => toggleMetadataButton("watched")}>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                        fill={reviewData?.watched ? "var(--theme-gray1)" : "none"} 
+                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                      </svg>
+                    </button>
+
+                    {/* liked */}
+                    <button className="group" onClick={() => toggleMetadataButton("liked")}>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                        fill={reviewData?.liked ? "var(--theme-gray1)" : "none"} 
+                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* MIDDLE */}
+                  <div className="group flex flex-row w-1/3 justify-center items-center">
+                    {/* rating */}
+                    {Array(5).fill("").map((_, index) => (
+                      <button 
+                        key={index} className="group" onClick={() => toggleMetadataRating(index + 1)} 
+                        onMouseEnter={() => setHoveredRating(index + 1)} onMouseLeave={() => setHoveredRating(0)}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+                          strokeWidth={index < hoveredRating ? 2 : 1.5} stroke="currentColor" 
+                          fill={index < (hoveredRating !== 0 ? hoveredRating : (reviewData?.rating || 0)) ? "var(--theme-gray1)" : "none"} 
+                          className={`size-6 ${index < hoveredRating && "drop-shadow-md stroke-theme-pine"}`}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* RIGHT */}
+                  <div className="flex flex-row w-1/3 justify-end items-center space-x-2">
+                    {/* notes */}
+                    <button className="group" onClick={() => {setNotesVisible(!notesVisible); setCollectionsVisible(false);}}>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
+                        stroke={notesVisible ? "var(--theme-orange2)" : "currentColor"}
+                        fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
+                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
+                    </button>
+
+                    {/* collections */}
+                    <button className="group" onClick={() => {setCollectionsVisible(!collectionsVisible); setNotesVisible(false);}}>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
+                        stroke={collectionsVisible ? "var(--theme-orange2)" : "currentColor"}
+                        fill={(reviewData?.collections?.length || 0) > 0 ? "var(--theme-gray1)" : "none"} 
+                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
-                {/* RIGHT */}
-                <div className="flex flex-row w-1/3 justify-end items-center space-x-2">
-                  {/* notes */}
-                  <button className="group">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                      fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
-                      className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                    </svg>
-                  </button>
+                {/* Editing Notes Section */}
+                {notesVisible &&
+                  <div className="flex flex-col mt-2 mb-5 mx-5 space-y-5 justify-center items-center">
+                    <div className="w-full h-[1.5px] bg-theme-orange2"/>
 
-                  {/* collections */}
-                  <button className="group">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                      fill={(reviewData?.collections?.length || 0) > 0 ? "var(--theme-gray1)" : "none"} 
-                      className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                    </svg>
-                  </button>
-                </div>
+                    <div className="flex flex-row w-[95%] bg-theme-gray1 rounded-r-lg justify-between items-center">
+                      {/* text input */}
+                      <textarea
+                        className="flex flex-wrap py-1 px-2 text-left text-[13px] border-4 border-theme-gray1 bg-theme-gray2 w-full h-full"
+                        value={currNotes}
+                        onChange={(e) => setCurrNotes(e.target.value)}
+                      />
+
+                      {/* buttons */}
+                      <div className="flex flex-col p-1">
+                        {/* submit */}
+                        <button className="group" onClick={() => submitNotes()}>
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
+                            className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                          </svg>
+                        </button>
+                        {/* delete */}
+                        <button className="group" onClick={() => clearNotes()}>
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
+                            className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             </SignedIn>
           </div>

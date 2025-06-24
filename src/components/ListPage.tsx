@@ -307,25 +307,46 @@ export default function ListPage ({ params }: { params: { page: string } }) {
       {/* Page Selection */}
       <div className="flex flex-row w-full h-[50px] items-center justify-end space-x-2 px-5 bg-zinc-900">
         
+        {/* first page arrow */}
         {currPage > MIN_PAGE &&
-          <button onClick={() => setCurrPage(currPage - 1)}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="size-6">
+          <button onClick={() => setCurrPage(MIN_PAGE)}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="mr-[-10px] size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
             </svg>
           </button>
         }
+        
+        {/* last page arrow */}
+        {currPage > MIN_PAGE &&
+          <button onClick={() => setCurrPage(currPage - 1)}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+        }
 
+        {/* page input */}
         <input
-          className="text-center"
+          className="text-center rounded-md px-0.5"
           size={2}
           value={currPage}
           onChange={(e) => setCurrPage(Number(e.target.value))}
           onBlur={() => setCurrPage(prev => prev < MIN_PAGE ? MIN_PAGE : prev > MAX_PAGE ? MAX_PAGE : prev)}
         />
         
+        {/* next page arrow */}
         {currPage < MAX_PAGE &&
           <button onClick={() => setCurrPage(currPage + 1)}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="size-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        }
+        
+        {/* last page arrow */}
+        {currPage < MAX_PAGE &&
+          <button onClick={() => setCurrPage(MAX_PAGE)}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="ml-[-10px] size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
             </svg>
           </button>
