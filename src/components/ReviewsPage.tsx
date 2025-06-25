@@ -1,15 +1,3 @@
-// Col 1: To Watch
-
-// Col 2: Watched
-
-// Col 3: Liked
-
-// Col 4: Rated
-// Col 4.1: 1 Star
-// Col 4.2: 2 Star
-// ...
-
-// Col 5: Note
 
 /////////////////////////////// IMPORTS ///////////////////////////////
 
@@ -333,7 +321,7 @@ export default function ReviewsPage () {
           // empty list
           <div className="w-full py-10 justify-center items center">
             <p className="text-center text-[20px] text-theme-gray2 font-medium italic">
-              NO MOVIES MATCH THE CURRENT SELECTION
+              NO MOVIES MATCH THE CURRENT RATING
             </p>
           </div>  
         }

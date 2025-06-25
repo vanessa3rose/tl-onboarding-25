@@ -245,13 +245,13 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// NOTES ///////////////////////////////
 
-  const [notesVisible, setNotesVisible] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const [currNotes, setCurrNotes] = useState("");
 
   // when the check button is clicked
   const submitNotes = () => {
     updateMetadataNotes(currNotes);   // api call
-    setNotesVisible(false);           // closes section
+    setShowNotes(false);           // closes section
   }
 
   // when the x button is clicked
@@ -330,7 +330,98 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// COLLECTIONS ///////////////////////////////
 
-  const [collectionsVisible, setCollectionsVisible] = useState(false);
+  const [showCollections, setShowCollections] = useState(false);
+  
+  const [showNewCollection, setShowNewCollection] = useState(false);
+  const [newCollection, setNewCollection] = useState<string>("");
+
+  // when the check button is clicked
+  const addCollection = () => {
+    updateMetadataCollections(newCollection);   // api call
+    setNewCollection("");                       // clears name
+    setShowNewCollection(false);                // closes section
+  }
+
+  // when the delete button is clicked on a specific collection
+  const removeCollection = (collection: string) => {
+    updateMetadataCollections(collection);   // api call
+  }
+
+  // to update the collections on a movie card
+  const updateMetadataCollections = async (collection: string) => {
+
+    // determines whether the current collection is included (for adding/removing)
+    const isIncluded = reviewData.collections.indexOf(collection) !== -1;
+    
+    // updates the button in the frontend
+    setReviewData((prev) => {
+      const updated = {...prev};
+      updated["collections"] = 
+        isIncluded 
+          ? [...prev.collections].filter(currCollection => currCollection !== collection)
+          : [...prev.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      return updated;
+    })
+  
+    // get user reviews
+    const foundReview = userReviews.find((review: any) => review.movieId === currId);
+  
+    // if the movie has already been reviewed by the user
+    if (foundReview) {
+
+      // toggle the given metadata key
+      const updatedMetadata = {
+        ...foundReview.metadata,
+        ["collections"]: 
+          isIncluded 
+            ? [...foundReview.metadata.collections].filter(currCollection => currCollection !== collection)
+            : [...foundReview.metadata.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase())),
+      };
+  
+      // updates it in the backend
+      await fetch(`/api/review?id=${foundReview.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedMetadata),
+      })
+      .then(res => res.json())
+      .then(data => console.log('Updated movie:', data))
+      .catch(err => console.error(err));
+  
+
+    // if it has not
+    } else {
+
+      // fetch movie data (excluding id)
+      let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
+  
+      // adds it to the backend
+      await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id,
+          movieId: currId,
+          movieData: movie,
+          metadata: {
+            toWatch: false,
+            watched: false,
+            liked: false,
+            rating: 0,
+            notes: "",
+            collections: [collection],
+          },
+        }),
+      })
+      .then(res => res.json())
+      .then(data => console.log('Added review:', data))
+      .catch(err => console.error(err));
+    }
+  
+    // reload reviews after the update
+    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    setUserReviews(reviews);
+  };
 
 
   /////////////////////////////// HTML ///////////////////////////////
@@ -449,10 +540,10 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                   {/* RIGHT */}
                   <div className="flex flex-row w-1/3 justify-end items-center space-x-2">
                     {/* notes */}
-                    <button className="group" onClick={() => {setNotesVisible(!notesVisible); setCollectionsVisible(false);}}>
+                    <button className="group" onClick={() => {setShowNotes(!showNotes); setShowCollections(false);}}>
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
-                        stroke={notesVisible ? "var(--theme-orange2)" : "currentColor"}
+                        stroke={showNotes ? "var(--theme-orange2)" : "currentColor"}
                         fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
                         className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
                       >
@@ -461,12 +552,11 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                     </button>
 
                     {/* collections */}
-                    <button className="group" onClick={() => {setCollectionsVisible(!collectionsVisible); setNotesVisible(false);}}>
+                    <button className="group" onClick={() => {setShowCollections(!showCollections); setShowNotes(false);}}>
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
-                        stroke={collectionsVisible ? "var(--theme-orange2)" : "currentColor"}
-                        fill={(reviewData?.collections?.length || 0) > 0 ? "var(--theme-gray1)" : "none"} 
-                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                        stroke={showCollections ? "var(--theme-orange2)" : "currentColor"} fill="none"
+                        className={`size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg ${(reviewData?.collections?.length || 0) > 0 && "bg-theme-gray2 rounded-sm"}`}
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                       </svg>
@@ -475,7 +565,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                 </div>
 
                 {/* Editing Notes Section */}
-                {notesVisible &&
+                {showNotes &&
                   <div className="flex flex-col mt-2 mb-5 mx-5 space-y-5 justify-center items-center">
                     <div className="w-full h-[1.5px] bg-theme-orange2"/>
 
@@ -508,6 +598,81 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                           </svg>
                         </button>
                       </div>
+                    </div>
+                  </div>
+                }
+
+                {/* Editing Collections Section */}
+                {showCollections &&
+                  <div className="flex flex-col mt-2 mb-1 mx-5 space-y-5 justify-center items-center">
+                    <div className="w-full h-[1.5px] bg-theme-orange2"/>
+
+                    <div className="flex flex-wrap space-x-4 py-[1px] w-[95%] justify-center items-center">
+
+                      {/* map of current collections */}
+                      {reviewData?.collections?.map((collection, index) => (
+                        <div 
+                          key={index} 
+                          className="flex px-2 mb-4 space-x-2 rounded-xl bg-theme-gray2 border-[1px] border-theme-gray1"
+                        >
+                          {/* Name */}
+                          <p className="text-[13px]">
+                            {collection}
+                          </p>
+
+                          {/* Delete */}
+                          <button className="group" onClick={() => removeCollection(collection)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-orange1)" className="size-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* collection addition */}
+                      {!showNewCollection
+                      ?
+                        // when viewing all collections
+                        <button 
+                          className="flex px-3 py-[2px] mb-4 rounded-xl bg-theme-mint border-[1px] border-theme-gray1"
+                          onClick={() => setShowNewCollection(true)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                          </svg>
+                        </button>
+                      :
+                        // when adding a new collection
+                        <div className="flex flex-row mb-4 justify-between items-center rounded-xl bg-theme-gray2 border-[2px] border-theme-mint">
+
+                          {/* Name Input */}
+                          <input
+                            className="rounded-l-xl text-center text-[13px]"
+                            value={newCollection}
+                            onChange={(e) => setNewCollection(e.target.value)}
+                          />
+
+                          {/* Buttons */}
+                          <div className="flex flex-row px-2">
+
+                            {/* submit - if not empty */}
+                            {newCollection !== "" &&
+                              <button className="group" onClick={() => addCollection()}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                              </button>
+                            }
+
+                            {/* clear */}
+                            <button className="group" onClick={() => setShowNewCollection(false)}>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      }
                     </div>
                   </div>
                 }

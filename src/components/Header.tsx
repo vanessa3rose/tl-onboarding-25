@@ -16,7 +16,7 @@ export default function Header ({ params }: { params: { selected: number } }) {
   const { isSignedIn } = useUser();
 
   const TABS = isSignedIn ? ["LISTS", "REVIEWS", "COLLECTIONS"] : ["LISTS"];
-  const REF = isSignedIn ? ["/lists/1", "/reviews", "/"] : ["/lists/1"];
+  const REF = isSignedIn ? ["/lists/1", "/reviews", "/collections"] : ["/lists/1"];
 
 
   /////////////////////////////// HTML ///////////////////////////////
