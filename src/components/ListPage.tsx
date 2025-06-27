@@ -63,7 +63,7 @@ export default function ListPage ({ params }: { params: { page: string } }) {
 
   /////////////////////////////// MOVIE LISTS ///////////////////////////////
 
-  const [currPage, setCurrPage] = useState(0);
+  const [currPage, setCurrPage] = useState<number>(0);
   const [currList, setCurrList] = useState<Movie[]>([]);
 
   // when the page is loaded in, set the requested page
@@ -115,7 +115,7 @@ export default function ListPage ({ params }: { params: { page: string } }) {
 
       // stores a sorted version for easy access
       setMovieDetails(
-        currList.map((movie) => ({
+        currList.map((movie: any) => ({
           toWatch: reviews.find((review: any) => review?.movieId === movie.id)?.metadata?.toWatch || false,
           watched: reviews.find((review: any) => review?.movieId === movie.id)?.metadata?.watched || false,
           liked: reviews.find((review: any) => review?.movieId === movie.id)?.metadata?.liked || false,
@@ -218,7 +218,7 @@ export default function ListPage ({ params }: { params: { page: string } }) {
       
       {/* List Array */}
       {currList.length > 0 
-      ?
+      ? (
         <div className="grid grid-cols-5 p-5">
           {currList?.map((movie: any, index: number) => (
             <div key={index} className="flex flex-col px-2 py-4">
@@ -299,31 +299,31 @@ export default function ListPage ({ params }: { params: { page: string } }) {
             </div>
           ))}
         </div>
-      : 
+      ) : (
         // empty list
         <div className="w-screen h-screen bg-theme-charcoal"/>  
-      }
+      )}
 
       {/* Page Selection */}
       <div className="flex flex-row w-full h-[50px] items-center justify-end space-x-2 px-5 bg-zinc-900">
         
         {/* first page arrow */}
-        {currPage > MIN_PAGE &&
+        {(currPage > MIN_PAGE) && (
           <button onClick={() => setCurrPage(MIN_PAGE)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="mr-[-10px] size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
             </svg>
           </button>
-        }
+        )}
         
         {/* last page arrow */}
-        {currPage > MIN_PAGE &&
+        {(currPage > MIN_PAGE) && (
           <button onClick={() => setCurrPage(currPage - 1)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
           </button>
-        }
+        )}
 
         {/* page input */}
         <input
@@ -335,22 +335,22 @@ export default function ListPage ({ params }: { params: { page: string } }) {
         />
         
         {/* next page arrow */}
-        {currPage < MAX_PAGE &&
+        {(currPage < MAX_PAGE) && (
           <button onClick={() => setCurrPage(currPage + 1)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
           </button>
-        }
+        )}
         
         {/* last page arrow */}
-        {currPage < MAX_PAGE &&
+        {(currPage < MAX_PAGE) && (
           <button onClick={() => setCurrPage(MAX_PAGE)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="ml-[-10px] size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
             </svg>
           </button>
-        }
+        )}
 
       </div>
     </div>

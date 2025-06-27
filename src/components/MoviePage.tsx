@@ -55,7 +55,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// MOVIE LISTS ///////////////////////////////
 
-  const [currId, setCurrId] = useState(0);
+  const [currId, setCurrId] = useState<number>(0);
   const [currMovie, setCurrMovie] = useState<Movie>({ title: "", description: "", id: 0, year: 0, poster: "" });
 
   // when the page is loaded in, set the requested page
@@ -191,7 +191,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
   };
 
   // star hovering
-  const [hoveredRating, setHoveredRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState<number>(0);
 
   // to toggle the rating on a movie card
   const toggleMetadataRating = async (starIndex: number) => {
@@ -263,8 +263,8 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// NOTES ///////////////////////////////
 
-  const [showNotes, setShowNotes] = useState(false);
-  const [currNotes, setCurrNotes] = useState("");
+  const [showNotes, setShowNotes] = useState<boolean>(false);
+  const [currNotes, setCurrNotes] = useState<string>("");
 
   // when the check button is clicked
   const submitNotes = () => {
@@ -348,9 +348,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// COLLECTIONS ///////////////////////////////
 
-  const [showCollections, setShowCollections] = useState(false);
+  const [showCollections, setShowCollections] = useState<boolean>(false);
   
-  const [showNewCollection, setShowNewCollection] = useState(false);
+  const [showNewCollection, setShowNewCollection] = useState<boolean>(false);
   const [newCollection, setNewCollection] = useState<string>("");
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -469,273 +469,273 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
         </button>
 
         {/* Movie Details */}
-        {currMovie?.title !== "" &&
-        <div className="flex flex-row w-full h-full justify-center items-center p-10 space-x-10">
-          
-          {/* LEFT HAND SIDE */}
-          <div className="w-1/3 h-auto justify-center items-center">
-            {/* Poster */}
-            <img 
-              src={currMovie.poster}
-              className="rounded-lg border-theme-mint border-4"
-            />
-          </div>
-
-          {/* RIGHT HAND SIDE */}
-          <div className="flex flex-col w-1/2 h-full justify-center items-center space-y-2">
-
-            {/* Details */}
-            <div className="flex flex-col w-full h-1/2 py-2 px-10 justify-around items-center bg-theme-gray2 border-4 border-theme-navy2">
-
-              {/* title */}
-              <p className="text-theme-pine text-[24px] text-center font-bold underline">
-                {currMovie.title}
-              </p>
-
-              {/* description */}
-              <p className="text-theme-navy2 text-[16px] text-center">
-                {currMovie.description}
-              </p>
-
-              {/* year */}
-              <p className="text-theme-orange1 text-[18px] text-right italic">
-                {currMovie.year}
-              </p>
+        {(currMovie?.title !== "") && (
+          <div className="flex flex-row w-full h-full justify-center items-center p-10 space-x-10">
+            
+            {/* LEFT HAND SIDE */}
+            <div className="w-1/3 h-auto justify-center items-center">
+              {/* Poster */}
+              <img 
+                src={currMovie.poster}
+                className="rounded-lg border-theme-mint border-4"
+              />
             </div>
 
-            {/* Buttons */}
-            <SignedIn>
-              <div className="flex flex-col w-full bg-theme-gray3 border-4 border-theme-navy2">
+            {/* RIGHT HAND SIDE */}
+            <div className="flex flex-col w-1/2 h-full justify-center items-center space-y-2">
 
-                <div className="flex w-full h-[50px] flex-row justify-center items-center px-5">
-                  {/* LEFT */}
-                  <div className="flex flex-row w-1/3 justify-start items-center space-x-1">
-                    {/* watch list */}
-                    <button className="group" onClick={() => toggleMetadataButton("toWatch")}>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                        fill={reviewData?.toWatch ? "var(--theme-gray1)" : "none"} 
-                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                      </svg>
-                    </button>
+              {/* Details */}
+              <div className="flex flex-col w-full h-1/2 py-2 px-10 justify-around items-center bg-theme-gray2 border-4 border-theme-navy2">
 
-                    {/* watched */}
-                    <button className="group" onClick={() => toggleMetadataButton("watched")}>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                        fill={reviewData?.watched ? "var(--theme-gray1)" : "none"} 
-                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                      </svg>
-                    </button>
+                {/* title */}
+                <p className="text-theme-pine text-[24px] text-center font-bold underline">
+                  {currMovie.title}
+                </p>
 
-                    {/* liked */}
-                    <button className="group" onClick={() => toggleMetadataButton("liked")}>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
-                        fill={reviewData?.liked ? "var(--theme-gray1)" : "none"} 
-                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                      </svg>
-                    </button>
-                  </div>
+                {/* description */}
+                <p className="text-theme-navy2 text-[16px] text-center">
+                  {currMovie.description}
+                </p>
 
-                  {/* MIDDLE */}
-                  <div className="group flex flex-row w-1/3 justify-center items-center">
-                    {/* rating */}
-                    {Array(5).fill("").map((_, index) => (
-                      <button 
-                        key={index} className="group" onClick={() => toggleMetadataRating(index + 1)} 
-                        onMouseEnter={() => setHoveredRating(index + 1)} onMouseLeave={() => setHoveredRating(0)}
-                      >
+                {/* year */}
+                <p className="text-theme-orange1 text-[18px] text-right italic">
+                  {currMovie.year}
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <SignedIn>
+                <div className="flex flex-col w-full bg-theme-gray3 border-4 border-theme-navy2">
+
+                  <div className="flex w-full h-[50px] flex-row justify-center items-center px-5">
+                    {/* LEFT */}
+                    <div className="flex flex-row w-1/3 justify-start items-center space-x-1">
+                      {/* watch list */}
+                      <button className="group" onClick={() => toggleMetadataButton("toWatch")}>
                         <svg 
-                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
-                          strokeWidth={index < hoveredRating ? 2 : 1.5} stroke="currentColor" 
-                          fill={index < (hoveredRating !== 0 ? hoveredRating : (reviewData?.rating || 0)) ? "var(--theme-gray1)" : "none"} 
-                          className={`size-6 ${index < hoveredRating && "drop-shadow-md stroke-theme-pine"}`}
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                          fill={reviewData?.toWatch ? "var(--theme-gray1)" : "none"} 
+                          className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
                       </button>
-                    ))}
-                  </div>
 
-                  {/* RIGHT */}
-                  <div className="flex flex-row w-1/3 justify-end items-center space-x-2">
-                    {/* notes */}
-                    <button className="group" onClick={() => {setShowNotes(!showNotes); setShowCollections(false);}}>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
-                        stroke={showNotes ? "var(--theme-orange2)" : "currentColor"}
-                        fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
-                        className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                      </svg>
-                    </button>
+                      {/* watched */}
+                      <button className="group" onClick={() => toggleMetadataButton("watched")}>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                          fill={reviewData?.watched ? "var(--theme-gray1)" : "none"} 
+                          className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                      </button>
 
-                    {/* collections */}
-                    <button className="group" onClick={() => {setShowCollections(!showCollections); setShowNotes(false);}}>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
-                        stroke={showCollections ? "var(--theme-orange2)" : "currentColor"} fill="none"
-                        className={`size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg ${(reviewData?.collections?.length || 0) > 0 && "bg-theme-gray2 rounded-sm"}`}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+                      {/* liked */}
+                      <button className="group" onClick={() => toggleMetadataButton("liked")}>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 
+                          fill={reviewData?.liked ? "var(--theme-gray1)" : "none"} 
+                          className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                      </button>
+                    </div>
 
-                {/* Editing Notes Section */}
-                {showNotes &&
-                  <div className="flex flex-col mt-2 mb-5 mx-5 space-y-5 justify-center items-center">
-                    <div className="w-full h-[1.5px] bg-theme-orange2"/>
-
-                    <div className="flex flex-row w-[95%] bg-theme-gray1 rounded-r-lg justify-between items-center">
-                      {/* text input */}
-                      <textarea
-                        className="flex flex-wrap py-1 px-2 text-left text-[13px] border-4 border-theme-gray1 bg-theme-gray2 w-full h-full"
-                        value={currNotes}
-                        onChange={(e) => setCurrNotes(e.target.value)}
-                      />
-
-                      {/* buttons */}
-                      <div className="flex flex-col p-1">
-                        {/* submit */}
-                        <button className="group" onClick={() => submitNotes()}>
+                    {/* MIDDLE */}
+                    <div className="group flex flex-row w-1/3 justify-center items-center">
+                      {/* rating */}
+                      {Array(5).fill("").map((_, index: number) => (
+                        <button 
+                          key={index} className="group" onClick={() => toggleMetadataRating(index + 1)} 
+                          onMouseEnter={() => setHoveredRating(index + 1)} onMouseLeave={() => setHoveredRating(0)}
+                        >
                           <svg 
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
-                            className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+                            strokeWidth={index < hoveredRating ? 2 : 1.5} stroke="currentColor" 
+                            fill={index < (hoveredRating !== 0 ? hoveredRating : (reviewData?.rating || 0)) ? "var(--theme-gray1)" : "none"} 
+                            className={`size-6 ${index < hoveredRating && "drop-shadow-md stroke-theme-pine"}`}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
                           </svg>
                         </button>
-                        {/* delete */}
-                        <button className="group" onClick={() => clearNotes()}>
-                          <svg 
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
-                            className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
+                      ))}
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="flex flex-row w-1/3 justify-end items-center space-x-2">
+                      {/* notes */}
+                      <button className="group" onClick={() => {setShowNotes(!showNotes); setShowCollections(false);}}>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
+                          stroke={showNotes ? "var(--theme-orange2)" : "currentColor"}
+                          fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
+                          className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        </svg>
+                      </button>
+
+                      {/* collections */}
+                      <button className="group" onClick={() => {setShowCollections(!showCollections); setShowNotes(false);}}>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
+                          stroke={showCollections ? "var(--theme-orange2)" : "currentColor"} fill="none"
+                          className={`size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg ${(reviewData?.collections?.length || 0) > 0 && "bg-theme-gray2 rounded-sm"}`}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                }
 
-                {/* Editing Collections Section */}
-                {showCollections &&
-                  <div className="flex flex-col mt-2 mb-1 mx-5 space-y-5 justify-center items-center">
-                    <div className="w-full h-[1.5px] bg-theme-orange2"/>
+                  {/* Editing Notes Section */}
+                  {showNotes && (
+                    <div className="flex flex-col mt-2 mb-5 mx-5 space-y-5 justify-center items-center">
+                      <div className="w-full h-[1.5px] bg-theme-orange2"/>
 
-                    <div className="flex flex-wrap space-x-4 py-[1px] w-[95%] justify-center items-center">
+                      <div className="flex flex-row w-[95%] bg-theme-gray1 rounded-r-lg justify-between items-center">
+                        {/* text input */}
+                        <textarea
+                          className="flex flex-wrap py-1 px-2 text-left text-[13px] border-4 border-theme-gray1 bg-theme-gray2 w-full h-full"
+                          value={currNotes}
+                          onChange={(e) => setCurrNotes(e.target.value)}
+                        />
 
-                      {/* map of current collections */}
-                      {reviewData?.collections?.map((collection, index) => (
-                        <div 
-                          key={index} 
-                          className="flex px-2 mb-4 space-x-2 rounded-xl bg-theme-gray2 border-[1px] border-theme-gray1"
-                        >
-                          {/* Name */}
-                          <p className="text-[13px]">
-                            {collection}
-                          </p>
-
-                          {/* Delete */}
-                          {!isLoading &&
-                            <button className="group" onClick={() => removeCollection(collection)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-orange1)" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          }
-                        </div>
-                      ))}
-
-                      {/* collection addition */}
-                      {!isLoading && (
-                        !showNewCollection ? (
-                          // when viewing all collections
-                          <button 
-                            className="flex px-3 py-[2px] mb-4 rounded-xl bg-theme-mint border-[1px] border-theme-gray1"
-                            onClick={() => setShowNewCollection(true)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-4">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        {/* buttons */}
+                        <div className="flex flex-col p-1">
+                          {/* submit */}
+                          <button className="group" onClick={() => submitNotes()}>
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
+                              className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                             </svg>
                           </button>
-                        ) : (
-                          !isLoading && (
-                            // when adding a new collection
-                            <div className={`flex flex-col w-full mb-4 justify-between items-center ${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-t-xl" : "rounded-xl"} bg-theme-gray2 border-[2px] border-theme-mint`}>
+                          {/* delete */}
+                          <button className="group" onClick={() => clearNotes()}>
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-charcoal)" 
+                              className="size-5 group-hover:stroke-theme-mint group-hover:stroke-[2px] group-hover:drop-shadow-lg"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                              {/* input row */}
-                              <div className="flex flex-row w-full">
+                  {/* Editing Collections Section */}
+                  {showCollections && (
+                    <div className="flex flex-col mt-2 mb-1 mx-5 space-y-5 justify-center items-center">
+                      <div className="w-full h-[1.5px] bg-theme-orange2"/>
 
-                                {/* Name Input */}
-                                <input
-                                  className={`${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-tl-xl" : "rounded-l-xl"} text-center text-[13px] w-full`}
-                                  value={newCollection}
-                                  onChange={(e) => setNewCollection(e.target.value)}
-                                />
+                      <div className="flex flex-wrap space-x-4 py-[1px] w-[95%] justify-center items-center">
 
-                                {/* Buttons */}
-                                <div className="flex flex-row px-2">
+                        {/* map of current collections */}
+                        {reviewData?.collections?.map((collection: any, index: number) => (
+                          <div 
+                            key={index} 
+                            className="flex px-2 mb-4 space-x-2 rounded-xl bg-theme-gray2 border-[1px] border-theme-gray1"
+                          >
+                            {/* Name */}
+                            <p className="text-[13px]">
+                              {collection}
+                            </p>
 
-                                  {/* submit - if not empty or duplicate */}
-                                  {(newCollection !== "" && !reviewData?.collections.includes(newCollection)) &&
-                                    <button className="group" onClick={() => addCollection(newCollection)}>
+                            {/* Delete */}
+                            {!isLoading && (
+                              <button className="group" onClick={() => removeCollection(collection)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-orange1)" className="size-4">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        ))}
+
+                        {/* collection addition */}
+                        {!isLoading && (
+                          !showNewCollection ? (
+                            // when viewing all collections
+                            <button 
+                              className="flex px-3 py-[2px] mb-4 rounded-xl bg-theme-mint border-[1px] border-theme-gray1"
+                              onClick={() => setShowNewCollection(true)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                              </svg>
+                            </button>
+                          ) : (
+                            !isLoading && (
+                              // when adding a new collection
+                              <div className={`flex flex-col w-full mb-4 justify-between items-center ${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-t-xl" : "rounded-xl"} bg-theme-gray2 border-[2px] border-theme-mint`}>
+
+                                {/* input row */}
+                                <div className="flex flex-row w-full">
+
+                                  {/* Name Input */}
+                                  <input
+                                    className={`${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-tl-xl" : "rounded-l-xl"} text-center text-[13px] w-full`}
+                                    value={newCollection}
+                                    onChange={(e) => setNewCollection(e.target.value)}
+                                  />
+
+                                  {/* Buttons */}
+                                  <div className="flex flex-row px-2">
+
+                                    {/* submit - if not empty or duplicate */}
+                                    {(newCollection !== "" && !reviewData?.collections.includes(newCollection)) && (
+                                      <button className="group" onClick={() => addCollection(newCollection)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                      </button>
+                                    )}
+
+                                    {/* clear */}
+                                    <button className="group" onClick={() => setShowNewCollection(false)}>
                                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                                       </svg>
                                     </button>
-                                  }
-
-                                  {/* clear */}
-                                  <button className="group" onClick={() => setShowNewCollection(false)}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                    </svg>
-                                  </button>
+                                  </div>
                                 </div>
+
+                                {/* other collections' rows */}
+                                {userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 && (
+                                  <div className="flex flex-wrap mt-1.5 px-1">
+                                    {userCollections.filter(collection => !reviewData?.collections.includes(collection)).map((collection: any, index: number) => (
+                                      
+                                      // individual collection button
+                                      <button 
+                                        key={index} onClick={() => addCollection(collection)}
+                                        className="flex-1 bg-theme-charcoal mx-1 mb-1.5 py-[1px] px-2 border-2 border-theme-navy2"
+                                      >
+                                        <p className="text-[12px] italic text-theme-gray1">
+                                          {collection}
+                                        </p>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-
-                              {/* other collections' rows */}
-                              {userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 &&
-                                <div className="flex flex-wrap mt-1.5 px-1">
-                                  {userCollections.filter(collection => !reviewData?.collections.includes(collection)).map((collection, index) => (
-                                    
-                                    // individual collection button
-                                    <button 
-                                      key={index} onClick={() => addCollection(collection)}
-                                      className="flex-1 bg-theme-charcoal mx-1 mb-1.5 py-[1px] px-2 border-2 border-theme-navy2"
-                                    >
-                                      <p className="text-[12px] italic text-theme-gray1">
-                                        {collection}
-                                      </p>
-                                    </button>
-                                  ))}
-                                </div>
-                              }
-                            </div>
+                            )
                           )
-                        )
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                }
-              </div>
-            </SignedIn>
+                  )}
+                </div>
+              </SignedIn>
+            </div>
           </div>
-        </div>
-        }
+        )}
       </div>
     </div>
   );

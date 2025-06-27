@@ -33,7 +33,7 @@ export default function Header ({ params }: { params: { selected: number } }) {
       
       {/* Middle (Tabs) */}
       <div className="flex flex-row w-3/5 justify-center space-x-20">
-        {TABS.map((tab, index) => (
+        {TABS.map((tab: string, index: number) => (
           <Link href={REF[index]} key={index} className={`font-medium text-[14px] text-theme-gray2 ${params.selected === index && "bg-theme-charcoal rounded-xl px-3"}`}>
             {tab}
           </Link>

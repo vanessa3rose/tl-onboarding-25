@@ -64,11 +64,11 @@ export default function ReviewsPage () {
   /////////////////////////////// BUTTONS ///////////////////////////////
 
   const [typeOption, setTypeOption] = useState<"toWatch" | "watched" | "liked">("toWatch");
-  const [ratedOption, setRatedOption] = useState(1);
-  const [hoveredRating, setHoveredRating] = useState(0);
+  const [ratedOption, setRatedOption] = useState<number>(1);
+  const [hoveredRating, setHoveredRating] = useState<number>(0);
 
   const [showRatingId, setShowRatingId] = useState<string>("");
-  const [hoveredShowRating, setHoveredShowRating] = useState(0);
+  const [hoveredShowRating, setHoveredShowRating] = useState<number>(0);
 
   const [showNotesId, setShowNotesId] = useState<string>("");
   const [currNotes, setCurrNotes] = useState<string>("");
@@ -172,7 +172,7 @@ export default function ReviewsPage () {
 
         {/* List */}
         {userReviews.length > 0 
-        ?
+        ? (
           <div className="flex w-full overflow-x-scroll bg-charcoal">
             {userReviews?.filter(movie => movie.metadata[typeOption])?.map((movie: any, index: number) => (
               <div key={index} className="flex flex-col px-2 py-4">
@@ -207,14 +207,14 @@ export default function ReviewsPage () {
               </div>
             ))}
           </div>
-        : 
+        ) : ( 
           // empty list
           <div className="w-full py-10 justify-center items center">
             <p className="text-center text-[20px] text-theme-gray2 font-medium italic">
               NO MOVIES MATCH THE CURRENT SELECTION
             </p>
           </div> 
-        }
+        )}
       </div>
 
       {/* Rating List */}
@@ -222,7 +222,7 @@ export default function ReviewsPage () {
 
         {/* Star Buttons */}
         <div className="group flex flex-row pt-10 pb-2 justify-center items-center">
-          {Array(5).fill("").map((_, index) => (
+          {Array(5).fill("").map((_, index: number) => (
             <button 
               key={index} className="group" onClick={() => setRatedOption(index + 1)} 
               onMouseEnter={() => setHoveredRating(index + 1)} onMouseLeave={() => setHoveredRating(0)}
@@ -241,90 +241,90 @@ export default function ReviewsPage () {
 
         {/* List */}
         {userReviews?.filter(movie => movie.metadata.rating === ratedOption)?.length > 0
-        ?
-        <div className="flex w-full overflow-x-scroll bg-charcoal">
-          {userReviews?.filter(movie => movie.metadata.rating === ratedOption)?.map((movie: any, index: number) => (
-            <div key={index} className="flex flex-col px-2 py-4">
+        ? (
+          <div className="flex w-full overflow-x-scroll bg-charcoal">
+            {userReviews?.filter(movie => movie.metadata.rating === ratedOption)?.map((movie: any, index: number) => (
+              <div key={index} className="flex flex-col px-2 py-4">
 
-              {/* Card */}
-              <div className="flex flex-col h-full w-[200px] justify-between bg-theme-gray3 border-theme-navy2 border-2 rounded-lg p-2">
-                
-                {/* poster */}
-                <div className="hover:bg-theme-orange1 hover:rounded-lg">
-                  <button 
-                    className="hover:mix-blend-luminosity h-fit"
-                    onClick={() => setLocation(`/movies/${movie.movieId}/${encodeURIComponent(location)}`)}
-                  >
-                    <img 
-                      src={movie.movieData.poster}
-                      className="rounded-lg border-theme-charcoal border-2 mb-[-5px]"
-                    />
-                  </button>
-                </div> 
-
-                {/* change button */}
-                {showRatingId === movie.movieId 
-                ?
-                  // if current viewing index
-                  <div className="flex flex-row space-x-4 justify-center items-center pt-[5px] mb-[-1px]">
-
-                    {/* back button */}
-                    <button className="pt-0.5" onClick={() => setShowRatingId("")}>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-navy1)" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                      </svg>
+                {/* Card */}
+                <div className="flex flex-col h-full w-[200px] justify-between bg-theme-gray3 border-theme-navy2 border-2 rounded-lg p-2">
+                  
+                  {/* poster */}
+                  <div className="hover:bg-theme-orange1 hover:rounded-lg">
+                    <button 
+                      className="hover:mix-blend-luminosity h-fit"
+                      onClick={() => setLocation(`/movies/${movie.movieId}/${encodeURIComponent(location)}`)}
+                    >
+                      <img 
+                        src={movie.movieData.poster}
+                        className="rounded-lg border-theme-charcoal border-2 mb-[-5px]"
+                      />
                     </button>
+                  </div> 
 
-                    {/* stars */}
-                    <div className="group flex flex-row justify-center items-center">
-                      {Array(5).fill("").map((_, index) => (
-                        <button 
-                          key={index} className="group" onClick={() => modMetadata(movie, "rating", index + 1)} 
-                          onMouseEnter={() => setHoveredShowRating(index + 1)} onMouseLeave={() => setHoveredShowRating(0)}
-                        >
-                          <svg 
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
-                            strokeWidth={2} stroke={index < ratedOption ? "var(--theme-pine)" : "var(--theme-charcoal)"}
-                            fill={(hoveredShowRating !== 0 && index < hoveredShowRating) ? "var(--theme-orange1)" : index < ratedOption ? "var(--theme-gray1)" : "none"} 
-                            className={`size-[18px] ${index < hoveredShowRating && "drop-shadow-md stroke-theme-navy2"}`}
+                  {/* change button */}
+                  {showRatingId === movie.movieId 
+                  ? (
+                    // if current viewing index
+                    <div className="flex flex-row space-x-4 justify-center items-center pt-[5px] mb-[-1px]">
+
+                      {/* back button */}
+                      <button className="pt-0.5" onClick={() => setShowRatingId("")}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-navy1)" className="size-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                        </svg>
+                      </button>
+
+                      {/* stars */}
+                      <div className="group flex flex-row justify-center items-center">
+                        {Array(5).fill("").map((_, index: number) => (
+                          <button 
+                            key={index} className="group" onClick={() => modMetadata(movie, "rating", index + 1)} 
+                            onMouseEnter={() => setHoveredShowRating(index + 1)} onMouseLeave={() => setHoveredShowRating(0)}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                          </svg>
-                        </button>
-                      ))}
-                    </div>
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+                              strokeWidth={2} stroke={index < ratedOption ? "var(--theme-pine)" : "var(--theme-charcoal)"}
+                              fill={(hoveredShowRating !== 0 && index < hoveredShowRating) ? "var(--theme-orange1)" : index < ratedOption ? "var(--theme-gray1)" : "none"} 
+                              className={`size-[18px] ${index < hoveredShowRating && "drop-shadow-md stroke-theme-navy2"}`}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                            </svg>
+                          </button>
+                        ))}
+                      </div>
 
-                    {/* remove button */}
-                    <button className="pt-0.5" onClick={() => modMetadata(movie, "rating", 0)}>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="var(--theme-navy2)" className="size-[18px]">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                      {/* remove button */}
+                      <button className="pt-0.5" onClick={() => modMetadata(movie, "rating", 0)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="var(--theme-navy2)" className="size-[18px]">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    // if unviewed index
+                    <button 
+                      className="flex justify-center items-center pt-1 mb-[-4px]" 
+                      onClick={() => setShowRatingId(movie.movieId)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="var(--theme-pine)" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                       </svg>
                     </button>
-                  </div>
-                :
-                  // if unviewed index
-                  <button 
-                    className="flex justify-center items-center pt-1 mb-[-4px]" 
-                    onClick={() => setShowRatingId(movie.movieId)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="var(--theme-pine)" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                    </svg>
-                  </button>
-                }
-              </div>
+                  )}
+                </div>
 
-            </div>
-          ))}
-        </div>
-        : 
+              </div>
+            ))}
+          </div>
+        ) : (
           // empty list
           <div className="w-full py-10 justify-center items center">
             <p className="text-center text-[20px] text-theme-gray2 font-medium italic">
               NO MOVIES MATCH THE CURRENT RATING
             </p>
           </div>  
-        }
+        )}
       </div>
 
       {/* Notes List */}
@@ -346,7 +346,7 @@ export default function ReviewsPage () {
 
         {/* List */}
         {userReviews?.filter(movie => movie.metadata.notes !== "")?.length > 0
-        ?
+        ? (
           <div className="flex w-full overflow-x-scroll bg-charcoal">
             {userReviews?.filter(movie => movie.metadata.notes !== "")?.map((movie: any, index: number) => (
               <div key={index} className="flex flex-col px-2 py-4">
@@ -370,24 +370,24 @@ export default function ReviewsPage () {
                   {/* notes */}
                   <div className="flex mt-2 mx-2">
                     {showNotesId === movie.movieId 
-                    ?
+                    ? (
                       // if current editing index
                       <textarea
                         className="flex flex-wrap py-1 px-2 text-left text-[13px] border-4 border-theme-gray1 bg-theme-gray2 w-full h-full"
                         value={currNotes}
                         onChange={(e) => setCurrNotes(e.target.value)}
                       />
-                    :
+                    ) : (
                       // if unedited index
                       <p className="break-words w-full text-[12px] font-medium italic text-theme-navy2">
                         {movie.metadata.notes}
                       </p>
-                    }
+                    )}
                   </div>
 
                   {/* change button */}
                   {showNotesId === movie.movieId 
-                  ?
+                  ? ( 
                     // if current editing index
                     <div className="flex flex-row space-x-4 justify-center items-center pt-[5px] mb-[-1px]">
 
@@ -412,7 +412,7 @@ export default function ReviewsPage () {
                         </svg>
                       </button>
                     </div>
-                  :
+                  ) : (
                     // if unedited index
                     <button 
                       className="flex justify-center items-center pt-1 mb-[-4px]" 
@@ -422,20 +422,20 @@ export default function ReviewsPage () {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                       </svg>
                     </button>
-                  }
+                  )}
                 </div>
 
               </div>
             ))}
           </div>
-        : 
+        ) : (
           // empty list
           <div className="w-full py-10 justify-center items center">
             <p className="text-center text-[20px] text-theme-gray2 font-medium italic">
               NO MOVIES CURRENTLY HAVE NOTES
             </p>
           </div>  
-        }
+        )}
       </div>
     </div>
   );
