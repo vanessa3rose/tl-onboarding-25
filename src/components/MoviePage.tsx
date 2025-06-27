@@ -87,16 +87,34 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   const [reviewData, setReviewData] = useState<Metadata>({ toWatch: false, watched: false, liked: false, rating: 0, notes: "", collections: []});
   const [userReviews, setUserReviews] = useState<Review[]>([]);
+  const [userCollections, setUserCollections] = useState<string[]>([]);
 
+  // to load in the current movie's review and all other reviews
   const loadReview = async () => {
     const reviews = await fetch(`/api/review?userId=${user?.id}`)
-      .then(res => res.json())
+      .then(res => res.json());
 
+    // stores all movie reviews for the current user
     setUserReviews(reviews);
-    setReviewData(reviews.find((review: any) => review.movieId === currId)?.metadata);
-  }
 
-  // fetches the current movie review when the movie data loads in
+    // stores the current movie review
+    setReviewData(reviews.find((review: any) => review.movieId === currId)?.metadata);
+    
+    // retrieves the unique list of collections from all movies
+    let collections: string[] = [];
+    reviews.forEach((review: any) => {
+      review.metadata?.collections.forEach((collection: string) => {
+        if (collections.indexOf(collection) === -1) {
+          collections.push(collection); 
+        }
+      })
+    });
+
+    // alphabetizes and sets the list
+    setUserCollections(collections.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+  }
+  
+  // fetches data when the movie data loads in
   useEffect(() => {
     loadReview();
   }, [currMovie])
@@ -335,13 +353,15 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollection, setNewCollection] = useState<string>("");
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   // when the check button is clicked
-  const addCollection = () => {
-    updateMetadataCollections(newCollection);   // api call
+  const addCollection = (collection: string) => {
+    updateMetadataCollections(collection);   // api call
     setNewCollection("");                       // clears name
     setShowNewCollection(false);                // closes section
   }
-
+  
   // when the delete button is clicked on a specific collection
   const removeCollection = (collection: string) => {
     updateMetadataCollections(collection);   // api call
@@ -349,17 +369,20 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   // to update the collections on a movie card
   const updateMetadataCollections = async (collection: string) => {
+    setIsLoading(true);
 
     // determines whether the current collection is included (for adding/removing)
-    const isIncluded = reviewData.collections.indexOf(collection) !== -1;
+    const isIncluded = reviewData?.collections.indexOf(collection) !== -1;
     
     // updates the button in the frontend
     setReviewData((prev) => {
       const updated = {...prev};
       updated["collections"] = 
-        isIncluded 
+        prev?.collections !== undefined
+        ? isIncluded 
           ? [...prev.collections].filter(currCollection => currCollection !== collection)
-          : [...prev.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+          : [...prev.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+        : [collection];
       return updated;
     })
   
@@ -373,9 +396,11 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
       const updatedMetadata = {
         ...foundReview.metadata,
         ["collections"]: 
-          isIncluded 
+          foundReview.metadata?.collections !== undefined
+          ? isIncluded 
             ? [...foundReview.metadata.collections].filter(currCollection => currCollection !== collection)
-            : [...foundReview.metadata.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase())),
+            : [...foundReview.metadata.collections, collection].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+          : [collection],
       };
   
       // updates it in the backend
@@ -421,6 +446,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     // reload reviews after the update
     const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
     setUserReviews(reviews);
+
+    // no longer loading
+    setIsLoading(false);
   };
 
 
@@ -621,58 +649,85 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                           </p>
 
                           {/* Delete */}
-                          <button className="group" onClick={() => removeCollection(collection)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-orange1)" className="size-4">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                          {!isLoading &&
+                            <button className="group" onClick={() => removeCollection(collection)}>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="var(--theme-orange1)" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          }
                         </div>
                       ))}
 
                       {/* collection addition */}
-                      {!showNewCollection
-                      ?
-                        // when viewing all collections
-                        <button 
-                          className="flex px-3 py-[2px] mb-4 rounded-xl bg-theme-mint border-[1px] border-theme-gray1"
-                          onClick={() => setShowNewCollection(true)}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                          </svg>
-                        </button>
-                      :
-                        // when adding a new collection
-                        <div className="flex flex-row mb-4 justify-between items-center rounded-xl bg-theme-gray2 border-[2px] border-theme-mint">
+                      {!isLoading && (
+                        !showNewCollection ? (
+                          // when viewing all collections
+                          <button 
+                            className="flex px-3 py-[2px] mb-4 rounded-xl bg-theme-mint border-[1px] border-theme-gray1"
+                            onClick={() => setShowNewCollection(true)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                          </button>
+                        ) : (
+                          !isLoading && (
+                            // when adding a new collection
+                            <div className={`flex flex-col w-full mb-4 justify-between items-center ${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-t-xl" : "rounded-xl"} bg-theme-gray2 border-[2px] border-theme-mint`}>
 
-                          {/* Name Input */}
-                          <input
-                            className="rounded-l-xl text-center text-[13px]"
-                            value={newCollection}
-                            onChange={(e) => setNewCollection(e.target.value)}
-                          />
+                              {/* input row */}
+                              <div className="flex flex-row w-full">
 
-                          {/* Buttons */}
-                          <div className="flex flex-row px-2">
+                                {/* Name Input */}
+                                <input
+                                  className={`${userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 ? "rounded-tl-xl" : "rounded-l-xl"} text-center text-[13px] w-full`}
+                                  value={newCollection}
+                                  onChange={(e) => setNewCollection(e.target.value)}
+                                />
 
-                            {/* submit - if not empty */}
-                            {newCollection !== "" &&
-                              <button className="group" onClick={() => addCollection()}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                </svg>
-                              </button>
-                            }
+                                {/* Buttons */}
+                                <div className="flex flex-row px-2">
 
-                            {/* clear */}
-                            <button className="group" onClick={() => setShowNewCollection(false)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      }
+                                  {/* submit - if not empty or duplicate */}
+                                  {(newCollection !== "" && !reviewData?.collections.includes(newCollection)) &&
+                                    <button className="group" onClick={() => addCollection(newCollection)}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                      </svg>
+                                    </button>
+                                  }
+
+                                  {/* clear */}
+                                  <button className="group" onClick={() => setShowNewCollection(false)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* other collections' rows */}
+                              {userCollections.filter(collection => !reviewData?.collections.includes(collection)).length > 0 &&
+                                <div className="flex flex-wrap mt-1.5 px-1">
+                                  {userCollections.filter(collection => !reviewData?.collections.includes(collection)).map((collection, index) => (
+                                    
+                                    // individual collection button
+                                    <button 
+                                      key={index} onClick={() => addCollection(collection)}
+                                      className="flex-1 bg-theme-charcoal mx-1 mb-1.5 py-[1px] px-2 border-2 border-theme-navy2"
+                                    >
+                                      <p className="text-[12px] italic text-theme-gray1">
+                                        {collection}
+                                      </p>
+                                    </button>
+                                  ))}
+                                </div>
+                              }
+                            </div>
+                          )
+                        )
+                      )}
                     </div>
                   </div>
                 }
