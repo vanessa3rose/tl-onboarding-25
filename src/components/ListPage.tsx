@@ -2,7 +2,7 @@
 /////////////////////////////// IMPORTS ///////////////////////////////
 
 import { useEffect, useState } from "react";
-import { SignedIn, useUser } from "@clerk/clerk-react";
+import { SignedIn, useUser, useAuth } from "@clerk/clerk-react";
 import { useLocation } from "wouter";
 import './../index.css';
 import Header from "./Header";
@@ -16,6 +16,7 @@ export default function ListPage ({ params }: { params: { page: string } }) {
   /////////////////////////////// VARIABLES ///////////////////////////////
 
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const [location, setLocation] = useLocation();
 
@@ -109,8 +110,15 @@ export default function ListPage ({ params }: { params: { page: string } }) {
   const loadReviews = async () => {
     try {
 
-      // uses the api call with the current user's id
-      const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+      // gets the current token
+      const token = await getToken();
+
+      // uses it to retrieve the user's reviews
+      const res = await fetch("/api/review", {
+        headers: { Authorization: `Bearer ${token}`, },
+      });
+console.log(res)
+      const reviews = await res.json();
       setUserReviews(reviews);
 
       // stores a sorted version for easy access
@@ -175,15 +183,20 @@ export default function ListPage ({ params }: { params: { page: string } }) {
     // if it has not
     } else {
 
+      // gets the current token
+      const token = await getToken();
+
       // fetch movie data (excluding id)
       let { id, ...movie } = await fetch(`/api/movie?id=${numId}`).then(res => res.json());
   
       // adds it to the backend
       await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`, 
+        },
         body: JSON.stringify({
-          userId: user?.id,
           movieId: numId,
           movieData: movie,
           metadata: {
@@ -203,7 +216,9 @@ export default function ListPage ({ params }: { params: { page: string } }) {
     }
   
     // reload reviews after the update
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    const token = await getToken();
+    const res = await fetch("/api/review", { headers: { Authorization: `Bearer ${token}`, }, });
+    const reviews = await res.json();
     setUserReviews(reviews);
   };
   

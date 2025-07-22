@@ -2,7 +2,7 @@
 /////////////////////////////// IMPORTS ///////////////////////////////
 
 import { useEffect, useState } from "react";
-import { SignedIn, useUser } from "@clerk/clerk-react";
+import { SignedIn, useAuth } from "@clerk/clerk-react";
 import { useLocation } from "wouter";
 import './../index.css';
 import Header from "./Header";
@@ -15,7 +15,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   /////////////////////////////// VARIABLES ///////////////////////////////
 
-  const { user } = useUser();
+  const { getToken } = useAuth();
 
   const [_, setLocation] = useLocation();
 
@@ -91,27 +91,39 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
 
   // to load in the current movie's review and all other reviews
   const loadReview = async () => {
-    const reviews = await fetch(`/api/review?userId=${user?.id}`)
-      .then(res => res.json());
+    try {
 
-    // stores all movie reviews for the current user
-    setUserReviews(reviews);
+      // gets the current token
+      const token = await getToken();
 
-    // stores the current movie review
-    setReviewData(reviews.find((review: any) => review.movieId === currId)?.metadata);
-    
-    // retrieves the unique list of collections from all movies
-    let collections: string[] = [];
-    reviews.forEach((review: any) => {
-      review.metadata?.collections.forEach((collection: string) => {
-        if (collections.indexOf(collection) === -1) {
-          collections.push(collection); 
-        }
-      })
-    });
+      // uses it to retrieve the user's reviews
+      const res = await fetch("/api/review", {
+        headers: { Authorization: `Bearer ${token}`, },
+      });
 
-    // alphabetizes and sets the list
-    setUserCollections(collections.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+      const reviews = await res.json();
+      setUserReviews(reviews);
+
+      // stores the current movie review
+      setReviewData(reviews.find((review: any) => review.movieId === currId)?.metadata);
+      
+      // retrieves the unique list of collections from all movies
+      let collections: string[] = [];
+      reviews.forEach((review: any) => {
+        review.metadata?.collections.forEach((collection: string) => {
+          if (collections.indexOf(collection) === -1) {
+            collections.push(collection); 
+          }
+        })
+      });
+
+      // alphabetizes and sets the list
+      setUserCollections(collections.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+      
+    // error
+    } catch (err) {
+      console.error("HIII", err);
+    }
   }
   
   // fetches data when the movie data loads in
@@ -158,15 +170,20 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     // if it has not
     } else {
 
+      // gets the current token
+      const token = await getToken();
+
       // fetch movie data (excluding id)
       let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
   
       // adds it to the backend
       await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`, 
+        },
         body: JSON.stringify({
-          userId: user?.id,
           movieId: currId,
           movieData: movie,
           metadata: {
@@ -186,7 +203,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     }
   
     // reload reviews after the update
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    const token = await getToken();
+    const res = await fetch("/api/review", { headers: { Authorization: `Bearer ${token}`, }, });
+    const reviews = await res.json();
     setUserReviews(reviews);
   };
 
@@ -229,15 +248,20 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     // if it has not
     } else {
 
+      // gets the current token
+      const token = await getToken();
+
       // fetch movie data (excluding id)
       let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
   
       // adds it to the backend
       await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`, 
+        },
         body: JSON.stringify({
-          userId: user?.id,
           movieId: currId,
           movieData: movie,
           metadata: {
@@ -256,7 +280,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     }
   
     // reload reviews after the update
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    const token = await getToken();
+    const res = await fetch("/api/review", { headers: { Authorization: `Bearer ${token}`, }, });
+    const reviews = await res.json();
     setUserReviews(reviews);
   };
 
@@ -314,15 +340,20 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     // if it has not
     } else {
 
+      // gets the current token
+      const token = await getToken();
+
       // fetch movie data (excluding id)
       let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
   
       // adds it to the backend
       await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`, 
+        },
         body: JSON.stringify({
-          userId: user?.id,
           movieId: currId,
           movieData: movie,
           metadata: {
@@ -341,7 +372,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     }
   
     // reload reviews after the update
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    const token = await getToken();
+    const res = await fetch("/api/review", { headers: { Authorization: `Bearer ${token}`, }, });
+    const reviews = await res.json();
     setUserReviews(reviews);
   };
 
@@ -417,15 +450,20 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     // if it has not
     } else {
 
+      // gets the current token
+      const token = await getToken();
+
       // fetch movie data (excluding id)
       let { id, ...movie } = await fetch(`/api/movie?id=${currId}`).then(res => res.json());
   
       // adds it to the backend
       await fetch('/api/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`, 
+        },
         body: JSON.stringify({
-          userId: user?.id,
           movieId: currId,
           movieData: movie,
           metadata: {
@@ -444,7 +482,9 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
     }
   
     // reload reviews after the update
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
+    const token = await getToken();
+    const res = await fetch("/api/review", { headers: { Authorization: `Bearer ${token}`, }, });
+    const reviews = await res.json();
     setUserReviews(reviews);
 
     // no longer loading
@@ -572,7 +612,7 @@ export default function MoviePage ({ params }: { params: { id: string; prev: str
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth={1.5} 
                           stroke={showNotes ? "var(--theme-orange2)" : "currentColor"}
-                          fill={reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
+                          fill={reviewData?.notes !== undefined && reviewData?.notes !== "" ? "var(--theme-gray1)" : "none"} 
                           className="size-6 group-hover:stroke-theme-orange2 group-hover:stroke-[2px] group-hover:drop-shadow-lg"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />

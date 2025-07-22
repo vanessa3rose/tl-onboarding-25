@@ -2,7 +2,7 @@
 /////////////////////////////// IMPORTS ///////////////////////////////
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { useLocation } from "wouter";
 import './../index.css';
 import Header from "./Header";
@@ -16,6 +16,7 @@ export default function CollectionsPage () {
   /////////////////////////////// VARIABLES ///////////////////////////////
 
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const [location, setLocation] = useLocation();
   
@@ -52,21 +53,36 @@ export default function CollectionsPage () {
 
   // loads in the list of reviews by the current user
   const loadReviews = async () => {
-    const reviews = await fetch(`/api/review?userId=${user?.id}`).then(res => res.json());
-    setUserReviews(reviews);
-    
-    // retrieves the unique list of collections from all movies
-    let collections: string[] = [];
-    reviews.forEach((review: any) => {
-      review.metadata.collections.forEach((collection: string) => {
-        if (collections.indexOf(collection) === -1) {
-          collections.push(collection); 
-        }
-      })
-    });
+    try {
 
-    // alphabetizes and sets the list
-    setUserCollections(collections.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+      // gets the current token
+      const token = await getToken();
+
+      // uses it to retrieve the user's reviews
+      const res = await fetch("/api/review", {
+        headers: { Authorization: `Bearer ${token}`, },
+      });
+
+      const reviews = await res.json();
+      setUserReviews(reviews);
+      
+      // retrieves the unique list of collections from all movies
+      let collections: string[] = [];
+      reviews.forEach((review: any) => {
+        review.metadata.collections.forEach((collection: string) => {
+          if (collections.indexOf(collection) === -1) {
+            collections.push(collection); 
+          }
+        })
+      });
+
+      // alphabetizes and sets the list
+      setUserCollections(collections.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+      
+    // error
+    } catch (err) {
+      console.error("HIII", err);
+    }
   }
 
   // fetches the current movie review when the movie data loads in
